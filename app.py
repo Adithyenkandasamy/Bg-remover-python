@@ -8,7 +8,6 @@ intermediate_image = "converted_input1.png"  # Temporary PNG file
 output_image = "output1.png"  # Final file after background removal
 
 try:
-    # Step 1: Convert AVIF to PNG
     with Image.open(input_image) as img:
         img = img.convert("RGBA")  # Convert to PNG-friendly format
         img.save(intermediate_image, format="PNG")  # Save as PNG
