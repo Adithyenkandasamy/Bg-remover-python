@@ -9,7 +9,7 @@ output_image = "output1.png"  # Final file after background removal
 
 try:
     with Image.open(input_image) as img:
-        img = img.convert("RGBA")  # Convert to PNG-friendly format
+        img = img.convert("RGBA") 
         img.save(intermediate_image, format="PNG")  # Save as PNG
         print(f"Converted {input_image} to {intermediate_image}")
 
