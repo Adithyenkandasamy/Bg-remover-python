@@ -1,30 +1,45 @@
-# Background Remover
+# Background Remover API
 
-A Python script that can remove backgrounds from images of any format.
+A FastAPI-based web application that removes backgrounds from images of any format.
 
 ## Features
+- Web interface for easy image upload
+- API endpoint for programmatic access
 - Supports various image formats (PNG, JPEG, AVIF, etc.)
 - Automatically converts images to PNG format
 - Removes background using the rembg library
 - Preserves transparency in output images
 
 ## Requirements
+Install the required packages:
 ```bash
-pip install rembg Pillow pillow-avif-plugin
+pip install fastapi uvicorn python-multipart rembg Pillow pillow-avif-plugin
 ```
 
 ## Usage
+
+### Starting the Server
 ```bash
-python app.py <path_to_image>
+python app.py
+```
+This will start the server at http://localhost:8000
+
+### Using the Web Interface
+1. Open your browser and go to http://localhost:8000
+2. Upload an image using the web interface
+3. Click "Remove Background"
+4. The processed image will be downloaded automatically
+
+### Using the API
+You can also use the API endpoint directly:
+
+```bash
+curl -X POST -F "file=@your_image.jpg" http://localhost:8000/remove-bg/ --output output.png
 ```
 
-Example:
-```bash
-python app.py image.jpg
-```
-
-The output will be saved in the same directory as the input image with "_nobg" suffix.
-For example, if your input is "image.jpg", the output will be "image_nobg.png".
+## API Documentation
+- API documentation is available at http://localhost:8000/docs
+- Alternative documentation at http://localhost:8000/redoc
 
 ## Supported Image Formats
 - PNG
