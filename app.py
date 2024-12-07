@@ -1,5 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from PIL import Image
 from rembg import remove
 import io
@@ -13,6 +14,9 @@ app = FastAPI(title="Background Remover API")
 UPLOAD_DIR = "uploads"
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
+
+# Mount the uploads directory
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 @app.get("/", response_class=HTMLResponse)
 async def home():
@@ -64,15 +68,80 @@ async def home():
                 button:hover {
                     background-color: #45a049;
                 }
+                #result {
+                    margin-top: 20px;
+                    text-align: center;
+                }
+                .preview {
+                    max-width: 300px;
+                    margin: 20px auto;
+                    border-radius: 4px;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                }
+                .download-btn {
+                    background-color: #2196F3;
+                    margin-top: 10px;
+                }
+                .download-btn:hover {
+                    background-color: #1976D2;
+                }
+                .loading {
+                    display: none;
+                    margin: 20px auto;
+                    text-align: center;
+                }
             </style>
+            <script>
+                function showLoading() {
+                    document.getElementById('loading').style.display = 'block';
+                    document.getElementById('result').innerHTML = '';
+                }
+
+                async function uploadFile(event) {
+                    event.preventDefault();
+                    showLoading();
+                    
+                    const formData = new FormData(event.target);
+                    try {
+                        const response = await fetch('/remove-bg/', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            const result = document.getElementById('result');
+                            result.innerHTML = `
+                                <img src="${data.image_url}" class="preview" alt="Processed image">
+                                <br>
+                                <a href="${data.image_url}" download="${data.filename}">
+                                    <button class="download-btn">Download Image</button>
+                                </a>
+                            `;
+                        } else {
+                            throw new Error('Image processing failed');
+                        }
+                    } catch (error) {
+                        document.getElementById('result').innerHTML = `
+                            <p style="color: red;">Error: ${error.message}</p>
+                        `;
+                    } finally {
+                        document.getElementById('loading').style.display = 'none';
+                    }
+                }
+            </script>
         </head>
         <body>
             <div class="container">
                 <h1>Background Remover</h1>
-                <form action="/remove-bg/" enctype="multipart/form-data" method="post">
+                <form onsubmit="uploadFile(event)">
                     <input type="file" name="file" accept="image/*" required>
                     <button type="submit">Remove Background</button>
                 </form>
+                <div id="loading" class="loading">
+                    <p>Processing image... Please wait...</p>
+                </div>
+                <div id="result"></div>
             </div>
         </body>
     </html>
@@ -103,12 +172,11 @@ async def remove_background(file: UploadFile = File(...)):
         output_path = os.path.join(UPLOAD_DIR, output_filename)
         output_image.save(output_path, format="PNG")
         
-        # Return the processed image
-        return FileResponse(
-            output_path,
-            media_type="image/png",
-            filename=output_filename
-        )
+        # Return JSON response with image URL
+        return {
+            "image_url": f"/uploads/{output_filename}",
+            "filename": output_filename
+        }
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
