@@ -19,7 +19,6 @@ try:
 
     out_image = remove(in_image)
 
-    # Step 4: Save the Final Image
     with open(output_image, "wb") as output_file:
         output_file.write(out_image)
 
