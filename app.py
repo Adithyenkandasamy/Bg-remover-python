@@ -1,30 +1,66 @@
 from PIL import Image
 from rembg import remove
 import os
+import sys
 
-# Paths
-input_image = "/home/yellowflash/Adithyenrepose/Bg-remover-python/input1.avif"
-converted_image = "/home/yellowflash/Adithyenrepose/Bg-remover-python/converted_input1.png"
-output_image = "/home/yellowflash/Adithyenrepose/Bg-remover-python/output1.png"
+def convert_and_remove_bg(input_path):
+    try:
+        # Get the filename and directory
+        input_dir = os.path.dirname(input_path)
+        filename = os.path.basename(input_path)
+        name_without_ext = os.path.splitext(filename)[0]
+        
+        print(f"Processing image: {filename}")
+        
+        # Open and convert image to PNG format (best format for transparency)
+        with Image.open(input_path) as img:
+            # Convert to RGBA mode to ensure transparency support
+            img = img.convert("RGBA")
+            
+            # Save temporary PNG file
+            temp_png = os.path.join(input_dir, f"{name_without_ext}_temp.png")
+            img.save(temp_png, format="PNG")
+            print("Image converted to PNG format")
+            
+            # Remove background
+            with Image.open(temp_png) as png_img:
+                # Remove background
+                output = remove(png_img)
+                
+                # Save the output
+                output_path = os.path.join(input_dir, f"{name_without_ext}_nobg.png")
+                output.save(output_path)
+                print(f"Background removed! Output saved as: {output_path}")
+            
+            # Clean up temporary file
+            os.remove(temp_png)
+            print("Temporary files cleaned up")
+            
+            return True
+            
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return False
 
-# Step 1: Convert AVIF to PNG
-try:
-    with Image.open(input_image) as img:
-        img = img.convert("RGBA")
-        img.save(converted_image, format="PNG")
-        print(f"Converted {input_image} to {converted_image}")
-except Exception as e:
-    print(f"Error converting {input_image}: {e}")
-    print("Ensure 'pillow-avif-plugin' is installed or use FFmpeg for conversion.")
-    exit()
+def main():
+    # Check if input file is provided
+    if len(sys.argv) < 2:
+        print("Please provide the path to the image file.")
+        print("Usage: python app.py <path_to_image>")
+        return
+    
+    input_path = sys.argv[1]
+    
+    # Check if file exists
+    if not os.path.exists(input_path):
+        print(f"Error: File '{input_path}' does not exist.")
+        return
+    
+    # Process the image
+    if convert_and_remove_bg(input_path):
+        print("Processing completed successfully!")
+    else:
+        print("Failed to process the image.")
 
-# Step 2: Remove Background
-try:
-    with open(converted_image, "rb") as input_file:
-        in_image = input_file.read()
-    out_image = remove(in_image)
-    with open(output_image, "wb") as output_file:
-        output_file.write(out_image)
-    print(f"Background removed successfully! Output saved at {output_image}")
-except Exception as e:
-    print(f"Error during background removal: {e}")
+if __name__ == "__main__":
+    main()
