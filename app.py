@@ -2,13 +2,19 @@ from rembg import remove
 
 
 input_image = "input1.png"
-output = "output1.png"
+output_image = "output1.png"
 
-with open(input_image,"rb") as input_file:
-    in_image = input_file.read()
+try:
 
-with open(output_image,"wb") as output_file:
-     output_file.write(out_image) 
+    with open(input_image,"rb") as input_file:
+      in_image = input_file.read()
+    
+    out_image = remove(in_image)
+
+    with open(output_image,"wb") as output_file:
+      output_file.write(out_image) 
+
+    print("background from the input image is reoved sucessfully!")  
 
 
 out_image = remove(in_image)
