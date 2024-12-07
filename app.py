@@ -2,7 +2,6 @@ from rembg import remove
 from PIL import Image
 import io
 
-# Input and Output Image Paths
 input_image = "input1.png"  # Original AVIF file
 intermediate_image = "converted_input1.png"  # Temporary PNG file
 output_image = "output1.png"  # Final file after background removal
