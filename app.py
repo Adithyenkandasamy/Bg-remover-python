@@ -17,7 +17,6 @@ try:
     with open(intermediate_image, "rb") as input_file:
         in_image = input_file.read()
 
-    # Step 3: Remove Background
     out_image = remove(in_image)
 
     # Step 4: Save the Final Image
