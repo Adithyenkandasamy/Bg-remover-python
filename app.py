@@ -16,5 +16,7 @@ try:
 
     print("background from the input image is reoved sucessfully!")  
 
+except Exception as e:
+    print(e)
 
 out_image = remove(in_image)
