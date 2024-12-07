@@ -14,7 +14,6 @@ try:
         img.save(intermediate_image, format="PNG")  # Save as PNG
         print(f"Converted {input_image} to {intermediate_image}")
 
-    # Step 2: Read the Converted PNG File
     with open(intermediate_image, "rb") as input_file:
         in_image = input_file.read()
 
